@@ -5,6 +5,7 @@ const bodyParser = require("body-parser")
 const {logger} = require("./middleware/logger")
 const errorHandler = require('./middleware/errorHandler')
 const productRouter = require("./routes/product.routes")
+const categoryRouter = require("./routes/category.routes")
 const app = express()
 const PORT = config.get("serverPort") || 5500
 
@@ -13,7 +14,8 @@ app.use(logger)
 app.use(express.json())
 app.use(bodyParser.json())
 
-app.use("/api",productRouter)
+app.use("/api/product",productRouter)
+app.use("/api/category",categoryRouter)
 
 app.get('/product', (req, res) => {
     res.send("Hello backend")
