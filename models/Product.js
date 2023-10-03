@@ -1,6 +1,6 @@
 const {model, Schema, ObjectId} = require("mongoose")
 const {format} = require("date-fns")
-const dateTime = format(new Date(), 'yyyyMMdd\tHH:mm:ss')
+
 
 const ProductSchema = new Schema({
     name : {type : String, required : true},
@@ -12,8 +12,8 @@ const ProductSchema = new Schema({
     category : {type : ObjectId, ref : "Category", required : true},
     countInStock : {type : Number, required : true, min : 0, max : 255},
     rating : {type : Number, default : 0},
-    isFeatured : { type : Boolean, default : false},
-    dateCreated : {type : Date, default : dateTime}
+    isFeatured : { type : Boolean, default : false}, 
+    dateCreated : {type : String}
 })
 
 

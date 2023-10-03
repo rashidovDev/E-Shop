@@ -1,87 +1,100 @@
 const Category = require("../models/Category")
+const {isValidObjectId} = require("mongoose")
 
 class CategoryController {
-      async createCategory(req, res){
-        try{
-            const {name, icon, color} = req.body
-            if(!name || !icon || !color){
-                res.status(401).json({ message : "Please fill all the required fields"})
+    async createCategory(req, res) {
+        try {
+            const { name, icon, color } = req.body
+            if (!name || !icon || !color) {
+                res.status(401).json({ message: "Please fill all the required fields" })
             }
             const category = new Category({
                 name, icon, color
             })
             await category.save()
-            return res.status(200).json({message : "Category created succesfully", category})
-        }catch(e){
-        console.log(e)
-        res.status(400).json({message : "Category error"})
+            return res.status(200).json({ message: "Category created succesfully", category })
+        } catch (e) {
+            console.log(e)
+            res.status(400).json({ message: "Category error" })
         }
-      }
+    }
 
-      async getCategory(req, res){
-        try{
-            const category =await Category.find()
-            if(!category){
-                res.status(401).json({ message : "Can not get Category"})
+    async getCategory(req, res) {
+        try {
+            const category = await Category.find()
+            if (!category) {
+                res.status(401).json({ message: "Can not get Category" })
             }
             return res.json(category)
-        }catch(e){
+        } catch (e) {
             console.log(e)
-            res.status(400).json({message : "Category error"})
+            res.status(400).json({ message: "Category error" })
         }
-      }
+    }
 
-      
-      async getCategoryById(req, res){
-        try{
-            const categoryItem =await Category.findById({_id : req.params.id})
-            if(!categoryItem){
-                res.status(401).json({ message : "Can not get Category"})
+
+    async getCategoryById(req, res) {
+        try {
+            if(!isValidObjectId(req.params.id)){
+                return res.status(400).json({ message : "Invalid id"})
+            }
+            const categoryItem = await Category.findById({ _id: req.params.id })
+            if (!categoryItem) {
+                res.status(401).json({ message: "Can not get Category" })
             }
             return res.json(categoryItem)
-        }catch(e){
+        } catch (e) {
             console.log(e)
-            res.status(400).json({message : "Category error"})
+            res.status(400).json({ message: "Category error" })
         }
-      }
+    }
 
-      async deleteCategory(req, res){
-        try{
-            const {id} = req.params 
-
-            const deletedItem = await Category.findOneAndRemove({_id:id})
-            if(!deletedItem) {
-                return res.status(404).json({ message : "CategoryItem not found"})
+    async deleteCategory(req, res) {
+        try {
+            if(!isValidObjectId(req.params.id)){
+                return res.status(400).json({ message : "Invalid id"})
             }
-            return res.status(200).json({message : "Succesfully deleted", deletedItem})
+            const { id } = req.params
 
-        }catch(e){
+            const deletedItem = await Category.findOneAndRemove({ _id: id })
+            if (!deletedItem) {
+                return res.status(404).json({ message: "CategoryItem not found" })
+            }
+            return res.status(200).json({ message: "Succesfully deleted", deletedItem })
+
+        } catch (e) {
             console.log(e)
-            res.status(400).json({message : "Deleting Error"})
+            res.status(400).json({ message: "Deleting Error" })
         }
-      }
+    }
 
-      async updateCategory(req, res){
-           try{
-            const {name,icon,color} = req.body
-            const {id} = req.params
-            const updateItem = await Category.findOneAndUpdate({
-                _id : id,
-                name,
-                icon, 
-                color},
-                {new : true}
-                )
-            if(!updateItem){
-                res.status(404).json({ message : "CategoryItem not found"})
+    async updateCategory(req, res) {
+        try {
+            if(!isValidObjectId(req.params.id)){
+                return res.status(400).json({ message : "Invalid id"})
             }
-            return res.status(200).json({message : "Updated succesfully", updateItem})
+            const { name, icon, color } = req.body
+            const id = req.params.id
+            const updateItem = await Category.findOneAndUpdate(
+                { _id: id },
+                {
+                    name,
+                    icon,
+                    color
+                },
+                { new: true }
+            )
+            if (!updateItem) {
+                res.status(404).json({ message: "CategoryItem not found" })
+            }
+            return res.status(200).json({ message: "Updated succesfully", updateItem })
 
-           }catch(e){
+        } catch (e) {
             console.log(e)
-            res.status(400).json({message : "Updating Error"})
-           }
-      }
+            res.status(400).json({ message: "Updating Error" })
+        }
+    }
+
 }
 
 
