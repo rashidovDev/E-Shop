@@ -1,17 +1,20 @@
 const Product = require("../models/Product")
 const { format } = require("date-fns")
 const {isValidObjectId} = require("mongoose")
+const { v4: uuidv4 } = require('uuid');
+
 
 class ProductController {
-    async createProduct(req, res) {
+    async createProduct(req, res)  {
         try {
-            const { name, description, image, images, brand, price, category, countInStock, rating, isFeatured } = req.body
-            if (!name || !description || !image || !images || !brand || !price || !category || !countInStock || !rating || !isFeatured) {
+            const { name, description, images, brand, price, category, countInStock, rating, isFeatured } = req.body
+            const file = req.files.file
+            if (!name || !description || !images || !brand || !price || !category || !countInStock || !rating || !isFeatured) {
                 res.status(401).json({ message: "Please fill all required fields" })
             }
             const dateTime = format(new Date(), 'yyyy/MM/dd HH:mm:ss')
             const product = new Product({
-                name, description, image, images, brand, price, category, countInStock, rating, isFeatured, dateCreated: dateTime
+                name, description, images, brand, price, category, countInStock, rating, isFeatured, dateCreated: dateTime
             })
             await product.save()
             return res.status(200).json({ message: "Product succesfully created", product })

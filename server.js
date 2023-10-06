@@ -2,10 +2,13 @@ const express = require("express")
 const mongoose = require("mongoose")
 const config = require("config")
 const bodyParser = require("body-parser")
+const fileUpload = require("express-fileupload")
 const {logger} = require("./middleware/logger")
 const errorHandler = require('./middleware/errorHandler')
 const productRouter = require("./routes/product.routes")
 const categoryRouter = require("./routes/category.routes")
+const userRouter = require("./routes/user.routes")
+const orderRouter = require("./routes/orders.routes")
 const app = express()
 const PORT = config.get("serverPort") || 5500
 
@@ -13,9 +16,17 @@ const PORT = config.get("serverPort") || 5500
 app.use(logger)
 app.use(express.json())
 app.use(bodyParser.json())
+app.use(express.static("static"))
+app.use(express.static("uploads"))
+// app.use(fileUpload({})) 
+
+// app.use(express.static("static"))
 
 app.use("/api/product",productRouter)
+app.use(fileUpload())
 app.use("/api/category",categoryRouter)
+app.use("/api/auth", userRouter)
+app.use("/api/order", orderRouter)
 
 app.get('/product', (req, res) => {
     res.send("Hello backend")
