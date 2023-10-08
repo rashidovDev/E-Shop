@@ -30,14 +30,14 @@ router.post('', upload.single("image"), async (req, res) => {
         name : req.body.name,
         imageUrl :`${basePath}/${req.file.filename}`,
         description : req.body.description,
-        images : ["wjdwjnwn.jpg"],
+        images : req.body.images,
         brand : req.body.brand,
         price : req.body.price,
         category : req.body.category,
         countInStock : req.body.countInStock,
         rating : req.body.rating,
         isFeatured : req.body.isFeatured,
-        dateCreated : {type : String}
+        dateCreated : Date.now()
        })
        await newProduct.save()
       return res.status(200).json({message : "Succesfully created", newProduct})
