@@ -9,19 +9,24 @@ const productRouter = require("./routes/product.routes")
 const categoryRouter = require("./routes/category.routes")
 const userRouter = require("./routes/user.routes")
 const orderRouter = require("./routes/orders.routes")
+const countryRouter = require("./routes/country.routes")
+const cors = require("cors")
+const corsOrigins = require("./middleware/cors.middleware")
 const app = express()
 const PORT = config.get("serverPort") || 5500
 
 //middleware 
+app.use(cors(corsOrigins))
 app.use(logger)
 app.use(express.json())
 app.use(bodyParser.json())
-app.use(express.static("static"))
-app.use(express.static("uploads"))
+app.use(express.static("static/user"))
+app.use(express.static("uploads/product"))
 // app.use(fileUpload({})) 
 
 // app.use(express.static("static"))
 
+app.use("/api/countries",countryRouter)
 app.use("/api/product",productRouter)
 app.use(fileUpload())
 app.use("/api/category",categoryRouter)

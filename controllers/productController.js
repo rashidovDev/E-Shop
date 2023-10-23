@@ -2,7 +2,8 @@ const Product = require("../models/Product")
 const { format } = require("date-fns")
 const {isValidObjectId} = require("mongoose")
 const { v4: uuidv4 } = require('uuid');
-
+const fs = require("fs")
+const config = require("config")
 
 class ProductController {
     async createProduct(req, res)  {
@@ -37,6 +38,45 @@ class ProductController {
         }
     }
 
+    async getProductList(req, res) {
+        try {
+            const page = parseInt(req.query.page) || 1;
+            const perPage = parseInt(req.query.limit) || 1;
+            const search = req.query.search || '';
+
+            const products = await Product.find()
+            const totalItems = await Product.countDocuments()
+            console.log(totalItems)
+
+            const filteredItems = products.filter(product => product.name.toLowerCase().includes(search.toLowerCase()));
+            if(!filteredItems){
+                return products
+            }
+            const start = (page - 1) * perPage;
+            const end = page * perPage;
+
+            const paginatedItems = filteredItems.slice(start, end);
+            res.json({totalItems,paginatedItems});
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            res.status(500).json({ error: "Failed to fetch data" });
+        }
+    }
+
+    async getCategories(req, res){
+        try{
+            const categories = [
+           {name : "Smartphone"},
+           {name : "Laptop"},
+           {name : "Accessory"},
+        ]
+            return res.send(categories)
+        }catch(err){
+            console.error("Error fetching data:", err);
+            res.status(500).json({ error: "Failed to fetch data" });
+        }
+    }
+
     async getProductById(req, res) {
         try {
             if(!isValidObjectId(req.params.id)){
@@ -59,13 +99,17 @@ class ProductController {
             if(!isValidObjectId(req.params.id)){
                 return res.status(400).json({ message : "Invalid id"})
             }
-
-            const deletedProduct = await Product.findOneAndRemove({ _id: req.params.id })
+            const deletedProduct = await Product.findOne({ _id: req.params.id })
+            console.log(deletedProduct.image)
+            if(fs.existsSync(config.get("staticPath") + "product\\" + deletedProduct.image)){
+                fs.unlinkSync(config.get("staticPath") + "product\\" + deletedProduct.image)
+            }
+            await Product.findOneAndRemove({ _id: req.params.id })
             if (!deletedProduct) {
                 return res.status(400).json({ message: "DeletedItem not found" })
             }
             return res.status(200).json({ message: "Succesfully deleted", deletedProduct })
-        } catch (e) {
+        } catch (err) {
             console.log(err)
             return res.status(400).json({ message: "Can not delete" })
         }
