@@ -62,7 +62,7 @@ class ProductController {
             res.status(500).json({ error: "Failed to fetch data" });
         }
     }
-
+    
     async getCategories(req, res){
         try{
             const categories = [

@@ -7,6 +7,7 @@ const UserSchema = new Schema({
     country : {type : String},
     avatar : {type : String},
     roles : [{type : String}],
+    dateRegistered : {type : Object},
     orders : {type : ObjectId, ref : "Orders"}
 })
 

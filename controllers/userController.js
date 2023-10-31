@@ -105,7 +105,6 @@ class UserController {
             if(!filteredItems){
                 return users 
             }
-
             // Implement your pagination logic, such as querying a database or filtering data.
             // Calculate the start and end indices based on page and perPage.
             const start = (page - 1) * perPage;
@@ -117,6 +116,77 @@ class UserController {
             const paginatedItems = filteredItems.slice(start, end);
             
 
+            res.json({totalItems,paginatedItems});
+
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            res.status(500).json({ error: "Failed to fetch data" });
+        }
+    }
+
+    async getCustomers(req, res) {
+        try {
+            const page = parseInt(req.query.page) || 1;
+            const perPage = parseInt(req.query.limit) || 1;
+            const search = req.query.search || '';
+
+            const users = await User.find()
+            const customers = users.filter(user => !user.roles.includes("admin"))
+            const totalItems = customers.length
+            console.log(totalItems)
+
+            // Implement your search and pagination logic, such as querying a database.
+            // First, filter the data based on the search term.
+            const filteredItems = customers.filter(customer => customer.username.toLowerCase().includes(search.toLowerCase()));
+            if(!filteredItems){
+                return users 
+            }
+            // Implement your pagination logic, such as querying a database or filtering data.
+            // Calculate the start and end indices based on page and perPage.
+            const start = (page - 1) * perPage;
+            const end = page * perPage;
+
+            // Simulate a data source (replace this with your actual data retrieval logic)
+
+            // Paginate the data
+            const paginatedItems = filteredItems.slice(start, end);
+            
+
+            res.json({totalItems,paginatedItems});
+
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            res.status(500).json({ error: "Failed to fetch data" });
+        }
+    }
+
+    async getAdmins(req, res) {
+        try {
+            const page = parseInt(req.query.page) || 1;
+            const perPage = parseInt(req.query.limit) || 1;
+            const search = req.query.search || '';
+
+            const users = await User.find()
+            const admins = users.filter(user => user.roles.includes("admin"))
+            const totalItems = admins.length
+            console.log(totalItems)
+
+            // Implement your search and pagination logic, such as querying a database.
+            // First, filter the data based on the search term.
+            const filteredItems = admins.filter(admin => admin.username.toLowerCase().includes(search.toLowerCase()));
+            if(!filteredItems){
+                return users 
+            }
+            // Implement your pagination logic, such as querying a database or filtering data.
+            // Calculate the start and end indices based on page and perPage.
+            const start = (page - 1) * perPage;
+            const end = page * perPage;
+
+            // Simulate a data source (replace this with your actual data retrieval logic)
+
+            // Paginate the data
+            const paginatedItems = filteredItems.slice(start, end);
+            
             res.json({totalItems,paginatedItems});
 
         } catch (err) {
@@ -153,6 +223,41 @@ class UserController {
          return res.status(500).json({ message : "Server error"})
          }
     }
+
+    async updateUserRole(req, res) {
+        try{
+           if(!isValidObjectId(req.params.id)){
+               return res.status(400).json({ message : "Invalid id"})
+           }
+
+       const user = await User.findOne({_id : req.params.id})
+       
+       if(!user.roles.includes("admin")){
+        const newRole = ["user", "admin"]
+        const updateUser = await User.findOneAndUpdate(
+            {_id : req.params.id},
+            {
+             roles : newRole
+            },
+            {new : true}
+            )
+            return res.status(200).json({ message : "Succesfully updated", updateUser})
+       }else{
+        const userRole = ["user"]
+        const updateUser = await User.findOneAndUpdate( 
+            {_id : req.params.id},
+            {
+             roles : userRole
+            },
+            {new : true}
+            )
+            return res.status(200).json({ message : "Succesfully updated", updateUser})
+       }
+
+        }catch(err){
+        return res.status(500).json({ message : "Server error"})
+        }
+   }
 
 
 }

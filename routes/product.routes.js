@@ -99,7 +99,7 @@ router.post('', upload.single("image"), async (req, res) => {
 // router.post('', productController.createProduct)
 router.get('', productController.getProducts)
 router.get('/categories', productController.getCategories)
-router.get('/product-list', productController.getProductList)
+router.get('/product-list', adminMiddleware, productController.getProductList)
 router.get('/:id', productController.getProductById)
 router.delete('/:id', productController.deleteProduct)
 // router.put('/:id', productController.updateProduct)

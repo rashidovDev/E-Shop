@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
         }
         const decoded = jwt.verify(token, config.get("secretKey"))
         let roles = decoded.roles
-        if(!roles.includes("admin")){
+        if(!roles.includes("owner")){
             return res.status(401).json({ message : "Auth error"})
         }
         next()

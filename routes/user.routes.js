@@ -2,6 +2,7 @@ const Router = require("express")
 const router = Router()
 const config = require("config")
 const User = require("../models/User")
+const getDate = require("../getDate")
 const {check, validationResult} = require("express-validator")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
@@ -29,7 +30,7 @@ router.post("/registration",
                return res.status(400).json({message : `User with this email ${email} already registered`})
             }
             const hashPassword = await bcrypt.hash(password, 8)
-            const user = new User({username,email,password : hashPassword,country, roles : ['user']})
+            const user = new User({username,email,password : hashPassword,country, roles : ['user'], dateRegistered : getDate()})
             await user.save()
             return res.status(200).json({message : "User was created", id : user._id})
          }catch(err){
@@ -55,7 +56,7 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ message : "Invalid password"})
         }
 
-        const token = jwt.sign({id : user.id, roles : user.roles}, config.get("secretKey"), {expiresIn : "2h"})
+        const token = jwt.sign({id : user.id, roles : user.roles}, config.get("secretKey"), {expiresIn : "3h"})
         return res.json({
             token, 
             user : {
@@ -74,7 +75,7 @@ router.get("", authMiddleware,
  async (req, res) => {
     try{
         const user = await User.findOne({_id : req.user.id})
-        const token = jwt.sign({id : user.id, roles : user.roles}, config.get("secretKey"), {expiresIn : "1h"})
+        const token = jwt.sign({id : user.id, roles : user.roles}, config.get("secretKey"), {expiresIn : "3h"})
         const orders = await Order.find({user : req.user.id})
         if(!orders){
             return res.status(400).json({message : "There is no order"})
@@ -98,10 +99,13 @@ router.get("", authMiddleware,
 
 router.delete("/user-list/:id", adminMiddleware, userController.deleteUser)
 router.post("/avatar/:id", adminMiddleware, userController.uploadAvatar)
+router.put("/users/:id", adminMiddleware, userController.updateUserRole)
 router.delete("/avatar/:id", authMiddleware, userController.deleteAvatar)
 router.get("/users", adminMiddleware, userController.getAllUsers)
 router.get("/search", adminMiddleware,userController.searchUser)
 router.get("/user-list", adminMiddleware, userController.getUsers)  
+router.get("/customer-list", adminMiddleware, userController.getCustomers) 
+router.get("/admin-list", adminMiddleware, userController.getAdmins) 
 router.get("/users/:id", adminMiddleware, userController.getUserById)
 router.put("/users/:id", adminMiddleware, userController.updateUser)
 
