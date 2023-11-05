@@ -3,7 +3,8 @@ const { format } = require("date-fns")
 const {isValidObjectId} = require("mongoose")
 const { v4: uuidv4 } = require('uuid');
 const fs = require("fs")
-const config = require("config")
+const config = require("config");
+const Continent = require("../models/Continent");
 
 class ProductController {
     async createProduct(req, res)  {
@@ -31,7 +32,7 @@ class ProductController {
             if (!products) {
                 res.status(400).json({ message: "There are no products" })
             }
-            res.status(200).json(products)
+            res.status(200).json({data : products})
         } catch (err) {
             console.log(err)
             return res.status(400).json({ message: "Can not get products" })
@@ -43,9 +44,18 @@ class ProductController {
             const page = parseInt(req.query.page) || 1;
             const perPage = parseInt(req.query.limit) || 1;
             const search = req.query.search || '';
+            const category = req.query.category || ''
 
-            const products = await Product.find()
-            const totalItems = await Product.countDocuments()
+            let products
+            let totalItems
+            if(category){
+                products = await Product.find({category : category})
+                totalItems = products.length
+            }else{
+                products = await Product.find()
+                totalItems = await Product.countDocuments()
+            }
+           
             console.log(totalItems)
 
             const filteredItems = products.filter(product => product.name.toLowerCase().includes(search.toLowerCase()));
@@ -200,6 +210,17 @@ class ProductController {
         }catch(e){
             console.log(e)
             return res.status(400).json({ message : "Server error"})
+        }
+    }
+
+    async getCountriesData(req, res){
+        try{
+        const countries = await Continent.find()
+
+        return res.json(countries)
+
+        }catch(err){
+            return res.status(500).json({ message : "Server Error"})
         }
     }
 }

@@ -6,6 +6,7 @@ const authMiddleware = require("../middleware/auth.middleware")
 
 router.post('', authMiddleware,  orderController.CreateOrder)
 router.get('', orderController.getAllOrders)
+
 router.get('/order-list', orderController.getAllOrdersbyPagination)
 router.get('/totalsales', adminMiddleware, orderController.getTotalSales)
 router.get('/:id', adminMiddleware, orderController.getOrderById)

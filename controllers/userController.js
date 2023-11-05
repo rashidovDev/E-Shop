@@ -218,7 +218,7 @@ class UserController {
             },
             {new : true}
             )
-            return res.status(200).json({ message : "Succesfully updated"})
+            return res.status(200).json({ message : "Succesfully updated", updateUser})
          }catch(err){
          return res.status(500).json({ message : "Server error"})
          }
@@ -258,8 +258,6 @@ class UserController {
         return res.status(500).json({ message : "Server error"})
         }
    }
-
-
 }
 
 module.exports = new UserController

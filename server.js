@@ -27,7 +27,7 @@ app.use(express.static("static/product"))
 
 // app.use(express.static("static"))
 
-app.use("/api/countries",countryRouter)
+app.use("/api",countryRouter)
 app.use("/api/product",productRouter)
 app.use(fileUpload())
 app.use("/api/category",categoryRouter)

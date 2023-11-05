@@ -1,10 +1,11 @@
 const Router = require("express")
 const Country = require("../models/Country")
 const router = Router()
+const Continent = require("../models/Continent")
 
-router.get('', async (req, res) => {
+router.get('/country-helper', async (req, res) => {
      try{
-      const countries = await Country.find()
+      const countries = await Continent.find()
       if(!countries){
       return  res.status(400).json({message : "Countries not found"})
       }
@@ -21,5 +22,20 @@ router.get('', async (req, res) => {
      }
 })
 
+router.get('/region-helper', async (req, res) => {
+  try{
+   const country = req.query.country
+
+   if(!country){
+    const countries = await Continent.find({countryName : "Afghanistan"}).select("regions")
+   }
+
+   const countries = await Continent.find({countryName : country}, "-_id").select("regions")
+   res.json(countries[0])
+ 
+  }catch(err){
+     console.log(err)
+  }
+})
 module.exports = router
 

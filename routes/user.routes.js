@@ -10,6 +10,7 @@ const userController = require("../controllers/userController")
 const authMiddleware = require("../middleware/auth.middleware")
 const adminMiddleware = require("../middleware/admin.middleware")
 const Order = require("../models/Order")
+const Continent = require("../models/Continent")
 
 router.post("/registration",  
     [
@@ -22,15 +23,15 @@ router.post("/registration",
             if(!errors.isEmpty()){
                 return res.status(400).json({message : "Incorrect request", errors})
             }
-            const {username, email, password, country} = req.body
+            const {username, email, password, country, region} = req.body
 
             const candidate = await User.findOne({email})
-   
+            
             if(candidate){
                return res.status(400).json({message : `User with this email ${email} already registered`})
             }
             const hashPassword = await bcrypt.hash(password, 8)
-            const user = new User({username,email,password : hashPassword,country, roles : ['user'], dateRegistered : getDate()})
+            const user = new User({username,email,password : hashPassword,country,region, roles : ['user'], dateRegistered : getDate()})
             await user.save()
             return res.status(200).json({message : "User was created", id : user._id})
          }catch(err){
@@ -56,14 +57,10 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ message : "Invalid password"})
         }
 
-        const token = jwt.sign({id : user.id, roles : user.roles}, config.get("secretKey"), {expiresIn : "3h"})
+        const token = jwt.sign({id : user.id, roles : user.roles}, config.get("secretKey"), {expiresIn : "10h"})
         return res.json({
             token, 
-            user : {
-                id : user.id,
-                email : user.email,
-                avatar : user.avatar   
-            }
+            user
         })
     }catch(err){
         console.log(err)
@@ -75,7 +72,7 @@ router.get("", authMiddleware,
  async (req, res) => {
     try{
         const user = await User.findOne({_id : req.user.id})
-        const token = jwt.sign({id : user.id, roles : user.roles}, config.get("secretKey"), {expiresIn : "3h"})
+        const token = jwt.sign({id : user.id, roles : user.roles}, config.get("secretKey"), {expiresIn : "10h"})
         const orders = await Order.find({user : req.user.id})
         if(!orders){
             return res.status(400).json({message : "There is no order"})
@@ -98,8 +95,8 @@ router.get("", authMiddleware,
 })
 
 router.delete("/user-list/:id", adminMiddleware, userController.deleteUser)
-router.post("/avatar/:id", adminMiddleware, userController.uploadAvatar)
-router.put("/users/:id", adminMiddleware, userController.updateUserRole)
+router.post("/avatar/:id", adminMiddleware, userController.uploadAvatar)    
+router.put("/user-role/:id", adminMiddleware, userController.updateUserRole)
 router.delete("/avatar/:id", authMiddleware, userController.deleteAvatar)
 router.get("/users", adminMiddleware, userController.getAllUsers)
 router.get("/search", adminMiddleware,userController.searchUser)
